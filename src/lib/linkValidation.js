@@ -1,6 +1,6 @@
 import {test, enforce, create, only} from "vest";
-import isURL from "validator/lib/isURL";
-import isAlphanumeric from "validator/lib/isAlphanumeric";
+import isURL from "validator/lib/isURL.js";
+import isAlphanumeric from "validator/lib/isAlphanumeric.js";
 
 enforce.extend({ isURL, isAlphanumeric })
 
