@@ -1,96 +1,83 @@
 <script>
-	import { required, min, max, pattern } from 'svelte-forms/validators';
-	import { form, field } from 'svelte-forms';
-	import { fetchFileRequest } from '../routes/store';
 	import { browser } from '$app/env';
-	import { goto } from "$app/navigation";
+	import { goto } from '$app/navigation';
+	import { fetchFileRequest } from '../routes/store';
+	import suiteFile from '$lib/fileValidation';
+	import Alert from './Alert.svelte';
 
-    let errorFetchMessage = ''
+	let formState = {
+		alias: ""
+	}
+	let pending = false
+	let result = suiteFile.get()
+	let errorFetchMessage = ""
+	let hasError = false
 
-    /**
+	/**
     * @type {any}
     */
     let file;
-    let isFileValid = false
+	let errorFile = ""
+	let isFileValid = false
 
 	function checkFileSize() {
 		if(browser) {
 			file = document.getElementById('file');
-
 			const fileStats = file.files[0];
-
 			const maxSize = 33554432 / (1024 ** 2)
 			const size = fileStats.size / (1024 ** 2);
-
-
+			
 			if( (size > maxSize) || (fileStats === null) ) {
-				errorFetchMessage = "Max file size is 32MB"
+				errorFile = "Max file size is 32MB"
 				isFileValid = false
 			}
-
+			
 			else {
 				isFileValid = true
 			}
 		}
-	}
 
-	const Alias = field('alias', '', [
-		required(),
-		min(5),
-		max(30),
-		pattern(new RegExp('^[A-Za-z0-9]*$'))
-	]);
-    
-	
-	const myForm = form(Alias);
-
-
-	async function setFileRequest() {
-		myForm.validate()
-
-		if ($myForm.valid && isFileValid) {
-			try {
-				const data = await fetchFileRequest($Alias.value, file)
-
-				if(data.hasOwnProperty("error")) {
-					errorFetchMessage = data.error
-				} 
-
-				else {
-					errorFetchMessage = ''
-					goto(`/claim/${data.alias}`)
-				}
-
-
-			} catch (err) {
-				// errorFetchMessage = 'Error occured. Please try again in a few minutes.'
-				errorFetchMessage = `${err}`
-			}
+		else {
+			isFileValid = false
 		}
 	}
-	
+
+	const handleChange = () => {
+		result = suiteFile(formState)
+	}
+
+    const handleFileRequests = async () => {
+		if( !result.isValid("alias") || !isFileValid) {
+			return
+		}
+
+		pending = true
+		hasError = false
+
+		try {
+			const data = await fetchFileRequest(formState.alias, file)
+			
+			if(data.hasOwnProperty("error")) {
+				throw new Error(data.error)
+			} else {
+				errorFetchMessage = ""
+				goto(`/claim/${data.alias}`)
+			}
+
+		} catch (e) {
+			hasError = true
+			pending = false
+			errorFetchMessage = String(e)
+		}
+
+	}
 </script>
 
-<div
-	class="p-4 my-8 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800 sm:mx-auto sm:w-full sm:max-w-md h-15"
-	role="alert"
->
-	<span class="font-medium">
-		{#if $myForm.hasError('alias.required')}
-			Alias is required
-		{:else if $myForm.hasError('alias.min')}
-			Alias must be at least 5 characters
-		{:else if $myForm.hasError('alias.max')}
-			Alias must be lower/equal than 30 characters
-		{:else if $myForm.hasError('alias.pattern')}
-			Alias must be alphanumeric only
-		{:else if errorFetchMessage !== ''}
-			{errorFetchMessage}
-		{:else}
-			Fill this form 🤡
-		{/if}
-	</span>
-</div>
+{#if hasError}
+	<div class="max-w-sm mx-auto">
+		<Alert errorMessage={errorFetchMessage}/>
+	</div>
+{/if}
 
 
 <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -106,10 +93,13 @@
 						required
 						class="w-full border-gray-900 rounded-lg shadow-sm"
 						placeholder="Enter your custom link here"
-						bind:value={$Alias.value}
+						bind:value={formState.alias}
+						on:input={handleChange}
 					/>
 				</div>
-				<p class="mt-1 text-xs text-gray-600">Created Link : backstreet.link/{$Alias.value}</p>
+				{#if result.getErrors("alias").length }
+					<p class="mt-1 text-xs text-gray-900">{result.getErrors("alias")[0]}</p>
+				{/if}
 			</div>
 
 			<div>
@@ -117,15 +107,22 @@
 				<div class="mt-1">
 					<input type="file" id="file" name="file" required class="file" on:change={checkFileSize}/>
 				</div>
+				{#if errorFile.length }
+					<p class="mt-1 text-xs text-gray-900">{errorFile}</p>
+				{/if}
 			</div>
 
 			<div>
 				<button
 					type="submit"
 					class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-					on:click={() => setFileRequest()}
-					>
-					Create
+					on:click={handleFileRequests}
+				>
+					{#if pending}
+						Loading
+					{:else}
+						Create
+					{/if}
 				</button>
 			</div>
 		</div>

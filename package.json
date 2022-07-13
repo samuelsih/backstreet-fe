@@ -30,6 +30,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"svelte-forms": "^2.3.1"
+		"validator": "^13.7.0",
+		"vest": "^4.4.2"
 	}
 }
