@@ -1,13 +1,12 @@
-<script>
+<script lang="ts">
 	import ButtonGroup from '../components/ButtonGroup.svelte';
-    // @ts-ignore
 	import File from '../components/File.svelte';
-	// @ts-ignore
 	import Link from '../components/Link.svelte';
+
 	import { indexClickedBtn } from './checker';
 
 	const components = [Link, File];
-	let current = components[0];
+	$: current = components[0];
 
 	//subscribe = value dari indexClickedBtn berubah ==> ubah nilai dari variable current
 	indexClickedBtn.subscribe((value) => (current = components[value]));
@@ -23,7 +22,6 @@
 	<section class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
 		<ButtonGroup />
 	</section>
-
 </div>
 
 <svelte:component this={current} />

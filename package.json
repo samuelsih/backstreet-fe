@@ -1,36 +1,42 @@
 {
-	"name": "backstreetv2-fe",
+	"name": "backstreet-fe-v2-migration",
 	"version": "0.0.1",
+	"private": true,
 	"scripts": {
-		"dev": "svelte-kit dev",
-		"build": "svelte-kit build",
-		"package": "svelte-kit package",
-		"preview": "svelte-kit preview",
-		"prepare": "svelte-kit sync",
-		"check": "svelte-check --tsconfig ./jsconfig.json",
-		"check:watch": "svelte-check --tsconfig ./jsconfig.json --watch",
-		"lint": "prettier --check --plugin-search-dir=. .",
-		"format": "prettier --write --plugin-search-dir=. ."
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"test": "playwright test",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"test:unit": "vitest",
+		"lint": "prettier --plugin-search-dir . --check . && eslint .",
+		"format": "prettier --plugin-search-dir . --write ."
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "next",
-		"@sveltejs/adapter-static": "^1.0.0-next.34",
-		"@sveltejs/kit": "next",
-		"@tailwindcss/forms": "^0.5.2",
-		"autoprefixer": "^10.4.4",
-		"postcss": "^8.4.12",
-		"postcss-load-config": "^3.1.4",
-		"prettier": "^2.6.2",
-		"prettier-plugin-svelte": "^2.7.0",
-		"svelte": "^3.44.0",
-		"svelte-check": "^2.7.1",
-		"svelte-preprocess": "^4.10.5",
-		"tailwindcss": "^3.0.23",
-		"typescript": "^4.7.2"
+		"@playwright/test": "^1.28.1",
+		"@sveltejs/adapter-auto": "^2.0.0",
+		"@sveltejs/kit": "^1.5.0",
+		"@tailwindcss/forms": "^0.5.3",
+		"@typescript-eslint/eslint-plugin": "^5.45.0",
+		"@typescript-eslint/parser": "^5.45.0",
+		"autoprefixer": "^10.4.13",
+		"eslint": "^8.28.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-svelte3": "^4.0.0",
+		"postcss": "^8.4.21",
+		"prettier": "^2.8.0",
+		"prettier-plugin-svelte": "^2.8.1",
+		"svelte": "^3.54.0",
+		"svelte-check": "^3.0.1",
+		"tailwindcss": "^3.2.7",
+		"tslib": "^2.4.1",
+		"typescript": "^4.9.3",
+		"vite": "^4.0.0",
+		"vitest": "^0.25.3"
 	},
 	"type": "module",
 	"dependencies": {
-		"validator": "^13.7.0",
-		"vest": "^4.4.2"
+		"zod": "^3.20.6"
 	}
 }
