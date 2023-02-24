@@ -15,14 +15,16 @@ export const actions: Actions = {
 	},
 
 	file: async ({ request }) => {
-		const blob = await request.blob();
-		const rawForm = await request.formData();
+		// const blob = await request.blob();
+		// const rawForm = await request.formData();
 
-		const formData = new FormData()
-		formData.append('alias', rawForm.get('alias') ?? '');
-		formData.append('file', blob)
+		// const formData = new FormData()
+		// formData.append('alias', rawForm.get('alias') ?? '');
+		// formData.append('file', blob)
 
-		const { hasError, ...err } = validateFileInput(formData);
+		const data = await request.formData();
+
+		const { hasError, ...err } = validateFileInput(data);
 		if(hasError) {
 			console.log(err);
 			return {

@@ -1,20 +1,7 @@
-import { FileSchema, LinkSchema } from "./schema";
+import { FileSchema, LinkSchema } from "./schema"
+import type { FileError, LinkError } from "./validation"
 
-export type LinkError = {
-    hasError: boolean;
-    alias: string;
-    redirect_to: string;
-}
-
-export type FileError = {
-    hasError: boolean;
-    alias: string;
-    file: string;
-}
-
-export const validateLinkInput = (input: FormData): LinkError => {
-    const body = Object.fromEntries(input)
-
+export const validateLinkClient = (body: object): LinkError => {
     const parsedInput = LinkSchema.safeParse(body)
     if(!parsedInput.success) {        
         const { alias, redirect_to } = parsedInput.error.flatten().fieldErrors
@@ -31,11 +18,9 @@ export const validateLinkInput = (input: FormData): LinkError => {
         alias: "",
         redirect_to: "",
     }
-};
+}
 
-export const validateFileInput = (input: FormData): FileError => {
-    const body = Object.fromEntries(input)
-
+export const validateFileClient = (body: object): FileError => {
     const parsedInput = FileSchema.safeParse(body)
     if(!parsedInput.success) {        
         const { alias, file } = parsedInput.error.flatten().fieldErrors
@@ -52,5 +37,4 @@ export const validateFileInput = (input: FormData): FileError => {
         alias: "",
         file: "",
     }
-};
-
+}
