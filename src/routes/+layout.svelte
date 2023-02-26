@@ -1,5 +1,6 @@
 <script>
 	import '../app.css';
+	import { Toaster } from 'svelte-french-toast' 
 </script>
 
 <svelte:head>
@@ -8,6 +9,7 @@
 
 <main class="layout">
 	<slot />
+	<Toaster />
 </main>
 
 <style>

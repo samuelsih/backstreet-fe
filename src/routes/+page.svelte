@@ -2,14 +2,15 @@
 	import ButtonGroup from '../components/ButtonGroup.svelte';
 	import File from '../components/File.svelte';
 	import Link from '../components/Link.svelte';
-
+	import type { ActionData } from './$types';
 	import { indexClickedBtn } from './checker';
 
-	const components = [Link, File];
-	$: current = components[0];
+	let index = 0;
+
+	export let formData: ActionData
 
 	//subscribe = value dari indexClickedBtn berubah ==> ubah nilai dari variable current
-	indexClickedBtn.subscribe((value) => (current = components[value]));
+	indexClickedBtn.subscribe((value) => (index = value));
 </script>
 
 <div class="flex flex-col items-center justify-center">
@@ -24,4 +25,8 @@
 	</section>
 </div>
 
-<svelte:component this={current} />
+{#if index === 0}
+	<Link formData={formData}/>
+{:else}
+	<File />
+{/if}

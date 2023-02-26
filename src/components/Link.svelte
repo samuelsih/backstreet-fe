@@ -1,24 +1,49 @@
 <script lang="ts">
-	import { validateLinkClient } from "../lib/clientValidation";
+	import { enhance, type SubmitFunction } from '$app/forms';
+	import { validateLinkClient } from '../lib/clientValidation';
+	import toast from 'svelte-french-toast';
+	import type { ActionData } from '../routes/$types';
 
-	let input = {
-		alias: "",
-		redirect_to: ""
-	}
+	export let formData: ActionData;
 
-	$: aliasErr = ""
-	$: urlErr = ""
+	let alias = '';
+	let redirect_to = '';
+
+	$: aliasErr = '';
+	$: urlErr = '';
 
 	const checkInput = (): void => {
-		const res = validateLinkClient(input)
-		aliasErr = res.alias
-		urlErr = res.redirect_to
-	}
+		const res = validateLinkClient({ alias: alias, redirect_to: redirect_to });
+		aliasErr = res.alias;
+		urlErr = res.redirect_to;
+	};
+
+	const submitLink: SubmitFunction = ({ cancel }) => {
+		return async ({ result, update }) => {
+			switch (result.type) {
+				case 'error':
+					toast.error(result.error);
+					cancel();
+					break;
+
+				case 'failure':
+					const { data } = result;
+					toast.error(data?.data?.toString())
+					cancel();
+					break;
+
+				default:
+					break;
+			}
+
+			await update();
+		};
+	};
 </script>
 
 <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
 	<div class="bg-white py-8 px-6 shadow rounded-lg sm:px-10">
-		<form class="mb-0 space-y-6" method="POST" action="?/link">
+		<form class="mb-0 space-y-6" method="POST" action="?/link" use:enhance={submitLink}>
 			<div>
 				<label for="redirect_to" class="block text-sm font-medium text-gray-700">URL</label>
 				<div class="mt-1">
@@ -28,7 +53,7 @@
 						type="text"
 						class="w-full border-gray-900 rounded-lg shadow-sm"
 						placeholder="Enter your URL here"
-						bind:value={input.redirect_to}
+						bind:value={redirect_to}
 						on:input={checkInput}
 					/>
 				</div>
@@ -44,7 +69,7 @@
 						type="text"
 						class="w-full border-gray-900 rounded-lg shadow-sm"
 						placeholder="Enter your custom link here"
-						bind:value={input.alias}
+						bind:value={alias}
 						on:input={checkInput}
 					/>
 				</div>

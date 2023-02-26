@@ -14,7 +14,6 @@ export const LinkSchema = z.object({
 		.string({ required_error: 'URL is required' })
 		.url({ message: 'Please input valid url' })
 		.trim(),
-	type: z.never()
 });
 
 export const FileSchema = z.object({
@@ -46,5 +45,14 @@ export const FileSchema = z.object({
 			});
 		}
 	}),
-	type: z.never()
 });
+
+export type LinkClaim = {
+	alias: string;
+	redirect_to: string;
+}
+
+export type FileClaim = {
+	alias: string;
+	filename: string;
+}

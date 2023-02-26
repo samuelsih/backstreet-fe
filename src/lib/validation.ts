@@ -14,8 +14,8 @@ export type FileError = {
 
 export const validateLinkInput = (input: FormData): LinkError => {
     const body = Object.fromEntries(input)
-
     const parsedInput = LinkSchema.safeParse(body)
+
     if(!parsedInput.success) {        
         const { alias, redirect_to } = parsedInput.error.flatten().fieldErrors
 
@@ -35,8 +35,8 @@ export const validateLinkInput = (input: FormData): LinkError => {
 
 export const validateFileInput = (input: FormData): FileError => {
     const body = Object.fromEntries(input)
-
     const parsedInput = FileSchema.safeParse(body)
+    
     if(!parsedInput.success) {        
         const { alias, file } = parsedInput.error.flatten().fieldErrors
 
