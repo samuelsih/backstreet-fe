@@ -23,8 +23,8 @@ export const FileSchema = z.object({
 		.min(5, { message: 'Minimum 5 characters' })
 		.max(30, { message: 'Maximum 30 characters' })
 		.trim(),
-	file: z.instanceof(File).superRefine((file, ctx) => {
-		if (!(file instanceof File)) {
+	file: z.instanceof(Blob).superRefine((file, ctx) => {
+		if (!(file instanceof Blob)) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
 				message: 'Bad file input'
@@ -48,6 +48,13 @@ export const FileSchema = z.object({
 		}
 	})
 });
+
+export const AliasChildSchema = z
+	.string({ required_error: 'Alias is required' })
+	.regex(alphaNumericRegex, { message: 'Can only contain alphanumeric' })
+	.min(5, { message: 'Minimum 5 characters' })
+	.max(30, { message: 'Maximum 30 characters' })
+	.trim();
 
 export type LinkClaim = {
 	alias: string;

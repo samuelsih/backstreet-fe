@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance, type SubmitFunction } from '$app/forms';
-	import { FileSchema } from '$lib/types/schema';
+	import { AliasChildSchema } from '$lib/types/schema';
 	import toast from 'svelte-french-toast';
 
 	let input = {
@@ -14,21 +14,13 @@
 	};
 
 	const checkInput = (): void => {
-		console.log(input.file);
-
-		const parsed = FileSchema.safeParse(input);
+		const parsed = AliasChildSchema.safeParse(input.alias);
 		if (!parsed.success) {
-			const { alias, file } = parsed.error.flatten().fieldErrors;
-			err = {
-				alias: alias !== undefined ? alias[0] : '',
-				file: file !== undefined ? file[0] : ''
-			};
-
+			err.alias = parsed.error.flatten().formErrors[0];
 			return;
 		}
 
 		err.alias = '';
-		err.file = '';
 	};
 
 	const submitFile: SubmitFunction = ({ cancel }) => {
@@ -41,7 +33,11 @@
 
 				case 'failure':
 					const { data } = result;
-					toast.error(data?.errorMsg);
+					if (data?.errType === 'form') {
+						err.alias = data?.aliasEerr ?? '';
+						err.file = data?.fileErr ?? '';
+					}
+
 					cancel();
 					break;
 
