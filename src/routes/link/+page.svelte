@@ -1,22 +1,33 @@
 <script lang="ts">
 	import { enhance, type SubmitFunction } from '$app/forms';
-	import { validateLinkClient } from '../lib/clientValidation';
+	import { LinkSchema } from '$lib/types/schema';
 	import toast from 'svelte-french-toast';
-	import type { ActionData } from '../routes/$types';
 
-	export let formData: ActionData;
+	let input = {
+		alias: "",
+		redirect_to: ""
+	}
 
-	let alias = '';
-	let redirect_to = '';
-
-	$: aliasErr = '';
-	$: urlErr = '';
+	let err = {
+		alias: "",
+		redirect_to: ""
+	}
 
 	const checkInput = (): void => {
-		const res = validateLinkClient({ alias: alias, redirect_to: redirect_to });
-		aliasErr = res.alias;
-		urlErr = res.redirect_to;
-	};
+		const parsed = LinkSchema.safeParse(input)
+		if(!parsed.success) {
+			const {alias, redirect_to} = parsed.error.flatten().fieldErrors
+			err = {
+				alias: (alias !== undefined ? alias[0] : ""),
+				redirect_to: (redirect_to !== undefined ? redirect_to[0] : ""),
+			}
+
+			return
+		}
+
+		err.alias = ""
+		err.redirect_to = ""
+	}
 
 	const submitLink: SubmitFunction = ({ cancel }) => {
 		return async ({ result, update }) => {
@@ -28,7 +39,7 @@
 
 				case 'failure':
 					const { data } = result;
-					toast.error(data?.data?.toString())
+					toast.error(data?.errorMsg);
 					cancel();
 					break;
 
@@ -41,7 +52,13 @@
 	};
 </script>
 
-<div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+<div class="mt-[30vh] sm:mx-auto sm:w-full sm:max-w-md">
+	<section class="text-center">
+		<h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+			<span class="block xl:inline"> Link </span>
+		</h1>
+	</section>
+
 	<div class="bg-white py-8 px-6 shadow rounded-lg sm:px-10">
 		<form class="mb-0 space-y-6" method="POST" action="?/link" use:enhance={submitLink}>
 			<div>
@@ -53,11 +70,11 @@
 						type="text"
 						class="w-full border-gray-900 rounded-lg shadow-sm"
 						placeholder="Enter your URL here"
-						bind:value={redirect_to}
+						bind:value={input.redirect_to}
 						on:input={checkInput}
 					/>
 				</div>
-				<span class="mt-1 text-xs text-gray-900">{urlErr}</span>
+				<span class="mt-1 text-xs text-gray-900">{err.redirect_to}</span>
 			</div>
 
 			<div>
@@ -69,11 +86,11 @@
 						type="text"
 						class="w-full border-gray-900 rounded-lg shadow-sm"
 						placeholder="Enter your custom link here"
-						bind:value={alias}
+						bind:value={input.alias}
 						on:input={checkInput}
 					/>
 				</div>
-				<span class="mt-1 text-xs text-gray-900">{aliasErr}</span>
+				<span class="mt-1 text-xs text-gray-900">{err.alias}</span>
 			</div>
 
 			<div>

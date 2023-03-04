@@ -1,77 +1,25 @@
 import { SECRET_API_GET_DATA, SECRET_API_INSERT_LINK } from '$env/static/private';
+import type { DefaultResponse, ILinkInsertRequest, ILinkInsertResponse } from '$lib/types/interfaces';
 import axios from 'axios';
 
-type PostLinkResponse = {
-	code: number;
-	message: string;
-	alias: string;
-	redirect_to: string;
-	type: string;
-};
-
-type GetResponse = {
-	code: number;
-	message: string;
-	response: {
-		alias: string;
-		redirect_to: string;
-		type: string;
-		filename: string;
-	};
-};
-
-export const getLink = async (slug: string): Promise<GetResponse> => {
+export const getLink = async (slug: string): Promise<ILinkInsertResponse> => {
 	try {
-		const { data } = await axios.get<GetResponse>(`${SECRET_API_GET_DATA}/${slug}`);
-		console.log("ini data: ", data);
-		return {
-			code: data.code,
-			message: data.message,
-			response: data.response
-		};
+		const response = await axios.get<ILinkInsertResponse>(`${SECRET_API_GET_DATA}/${slug}`);
+		return response.data;
 	} catch (err) {
-		console.error("ini error: ", err);
 		if (axios.isAxiosError(err)) {
-			return {
-				code: parseInt(err.response?.data?.code, 10) || 500,
-				message: err.message || 'Something wrong',
-				response: {
-					alias: '',
-					redirect_to: '',
-					type: '',
-					filename: ''
-				}
-			};
+			throw new Error(err.message);
 		}
 
-		return {
-			code: 500,
-			message: 'Something wrong',
-			response: {
-				alias: '',
-				redirect_to: '',
-				type: '',
-				filename: ''
-			}
-		};
+		throw new Error('Something wrong');
 	}
 };
 
-export const insertLink = async ({
-	alias,
-	redirect_to
-}: {
-	alias: string;
-	redirect_to: string;
-}): Promise<PostLinkResponse> => {
+export const insertLink = async (link: ILinkInsertRequest): Promise<DefaultResponse> => {
 	try {
-		const { data } = await axios.post<PostLinkResponse>(
+		const response = await axios.post<DefaultResponse>(
 			SECRET_API_INSERT_LINK,
-			{
-				alias: alias,
-				redirect_to: redirect_to,
-				type: 'LINK'
-			},
+			link,
 			{
 				headers: {
 					'Content-Type': 'application/json',
@@ -80,25 +28,12 @@ export const insertLink = async ({
 			}
 		);
 
-		return data;
+		return response.data;
 	} catch (err) {
 		if (axios.isAxiosError(err)) {
-			return {
-				code: parseInt(err.response?.data?.code, 10) || 500,
-				message: err.message || 'Something wrong',
-				alias: '',
-				redirect_to: '',
-				type: ''
-			};
+			throw new Error(err.message);
 		}
 
-        console.log(err);
-        return {
-            code: 500,
-            message: 'Something wrong',
-            alias: '',
-            redirect_to: '',
-            type: ''
-        }
+		throw new Error('Something wrong');
 	}
 };
