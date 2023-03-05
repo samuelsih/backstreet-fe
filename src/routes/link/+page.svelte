@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { enhance, type SubmitFunction } from '$app/forms';
+	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
 	import { LinkSchema } from '$lib/types/schema';
 	import toast from 'svelte-french-toast';
+	import { Turnstile } from 'svelte-turnstile';
 
 	let input = {
 		alias: "",
@@ -92,6 +94,8 @@
 				</div>
 				<span class="mt-1 text-xs text-gray-900">{err.alias}</span>
 			</div>
+
+			<Turnstile siteKey={PUBLIC_TURNSTILE_SITE_KEY} theme="light" />
 
 			<div>
 				<button
