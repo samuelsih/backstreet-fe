@@ -6,7 +6,7 @@
 	import { navigating } from '$app/stores';
 
 	NProgress.configure({
-		minimum: 0.16
+		minimum: 0.4,
 	});
 
 	$: {
