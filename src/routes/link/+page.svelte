@@ -1,57 +1,15 @@
 <script lang="ts">
-	import { enhance, type SubmitFunction } from '$app/forms';
-	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
-	import { LinkSchema } from '$lib/types/schema';
+	import type { PageData } from './$types';
+	import { superForm } from 'sveltekit-superforms/client';
 	import toast from 'svelte-french-toast';
-	import { Turnstile } from 'svelte-turnstile';
 
-	let input = {
-		alias: "",
-		redirect_to: ""
+	export let data: PageData;
+
+	const { form, errors, constraints, submitting } = superForm(data.form);
+
+	if ($errors._errors) {
+		toast.error($errors._errors[0]);
 	}
-
-	let err = {
-		alias: "",
-		redirect_to: ""
-	}
-
-	const checkInput = (): void => {
-		const parsed = LinkSchema.safeParse(input)
-		if(!parsed.success) {
-			const {alias, redirect_to} = parsed.error.flatten().fieldErrors
-			err = {
-				alias: (alias !== undefined ? alias[0] : ""),
-				redirect_to: (redirect_to !== undefined ? redirect_to[0] : ""),
-			}
-
-			return
-		}
-
-		err.alias = ""
-		err.redirect_to = ""
-	}
-
-	const submitLink: SubmitFunction = ({ cancel }) => {
-		return async ({ result, update }) => {
-			switch (result.type) {
-				case 'error':
-					toast.error(result.error);
-					cancel();
-					break;
-
-				case 'failure':
-					const { data } = result;
-					toast.error(data?.errorMsg);
-					cancel();
-					break;
-
-				default:
-					break;
-			}
-
-			await update();
-		};
-	};
 </script>
 
 <div class="mt-[30vh] sm:mx-auto sm:w-full sm:max-w-md">
@@ -62,7 +20,7 @@
 	</section>
 
 	<div class="bg-white py-8 px-6 shadow rounded-lg sm:px-10">
-		<form class="mb-0 space-y-6" method="POST" action="?/link" use:enhance={submitLink}>
+		<form class="mb-0 space-y-6" method="POST">
 			<div>
 				<label for="redirect_to" class="block text-sm font-medium text-gray-700">URL</label>
 				<div class="mt-1">
@@ -72,11 +30,14 @@
 						type="text"
 						class="w-full border-gray-900 rounded-lg shadow-sm"
 						placeholder="Enter your URL here"
-						bind:value={input.redirect_to}
-						on:input={checkInput}
+						bind:value={$form.redirect_to}
+						data-invalid={$errors.redirect_to}
+						{...$constraints.redirect_to}
 					/>
 				</div>
-				<span class="mt-1 text-xs text-gray-900">{err.redirect_to}</span>
+				{#if $errors.redirect_to}
+					<span class="mt-1 text-xs text-gray-900">{$errors.redirect_to}</span>
+				{/if}
 			</div>
 
 			<div>
@@ -88,21 +49,26 @@
 						type="text"
 						class="w-full border-gray-900 rounded-lg shadow-sm"
 						placeholder="Enter your custom link here"
-						bind:value={input.alias}
-						on:input={checkInput}
+						bind:value={$form.alias}
+						data-invalid={$errors.alias}
+						{...$constraints.alias}
 					/>
 				</div>
-				<span class="mt-1 text-xs text-gray-900">{err.alias}</span>
+				{#if $errors.alias}
+					<span class="mt-1 text-xs text-gray-900">{$errors.alias}</span>
+				{/if}
 			</div>
-
-			<Turnstile siteKey={PUBLIC_TURNSTILE_SITE_KEY} theme="light" />
 
 			<div>
 				<button
 					type="submit"
 					class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
 				>
-					Create
+					{#if $submitting}
+						Submitting
+					{:else}
+						Create
+					{/if}
 				</button>
 			</div>
 		</form>

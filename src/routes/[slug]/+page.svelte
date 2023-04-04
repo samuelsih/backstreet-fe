@@ -1,14 +1,18 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
-	const { type, redirect_to } = data.response;
+	const { type, redirect_to } = data.response.response;
 
 	onMount(() => {
-		if (type === 'LINK') {
-			window.location.href = redirect_to;
+		if (browser) {
+			if (type === 'LINK') {
+				window.history.forward();
+				window.location.replace(redirect_to);
+			}
 		}
 	});
 </script>
