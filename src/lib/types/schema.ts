@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-const maxFileSize = 1024 * 10; //10MB
 const alphaNumericRegex = new RegExp('^[a-z0-9]+$');
 
 export const LinkSchema = z.object({
@@ -23,30 +22,8 @@ export const FileSchema = z.object({
 		.min(5, { message: 'Minimum 5 characters' })
 		.max(30, { message: 'Maximum 30 characters' })
 		.trim(),
-	file: z.instanceof(Blob).superRefine((file, ctx) => {
-		if (!(file instanceof Blob)) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: 'Bad file input'
-			});
-		}
 
-		if (file.size <= 0) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: 'File is required'
-			});
-		}
-
-		if (Math.round(file.size / 1024) > maxFileSize) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: `Maximum file size is 10MB, got ${file.size} [${
-					file.size / 1024
-				} - ${maxFileSize}]`
-			});
-		}
-	})
+	file: z.custom<File>()
 });
 
 export const AliasChildSchema = z

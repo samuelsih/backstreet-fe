@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
 	import type { PageData } from './$types';
 	export let data: PageData;
 
 	const { alias } = data;
 
 	const copy = () => {
-		navigator.clipboard.writeText('backstreet.link/' + alias);
+		navigator.clipboard.writeText(`${PUBLIC_API_BASE_URL}/${alias}`);
 	};
 </script>
 
@@ -21,7 +22,7 @@
 				class="bg-gray-50 border border-gray-500 text-gray-900 text-sm rounded-lg focus:border-gray-500 block w-full p-2.5"
 				disabled
 				readonly
-				value={`backstreet.link/${alias}`}
+				value={`${PUBLIC_API_BASE_URL}/${alias}`}
 			/>
 		</div>
 		<div>
