@@ -40,7 +40,7 @@ export const getDataBySlug = async (slug: string): Promise<FindSlugResponse> => 
 	}
 };
 
-export const validateFile = (file: FormDataEntryValue | null): Error => {
+export const validateFile = (file: FormDataEntryValue | null): Error | null => {
 	if (!(file instanceof File)) {
 		return new Error('Not a file');
 	}
@@ -55,5 +55,5 @@ export const validateFile = (file: FormDataEntryValue | null): Error => {
 		);
 	}
 
-	return new Error();
+	return null;
 };

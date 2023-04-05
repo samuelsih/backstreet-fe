@@ -1,4 +1,4 @@
-import type { GetResponse } from "./common";
+import type { GetResponse } from './common';
 
 export interface DefaultResponse {
 	code: number;
@@ -14,6 +14,12 @@ export interface ILinkInsertResponse extends DefaultResponse {
 	alias: string;
 	redirect_to: string;
 	type: string;
+}
+
+export interface IFileInsertResponse extends DefaultResponse {
+	alias: string;
+	type: string;
+	filename: string;
 }
 
 export interface FindSlugResponse extends DefaultResponse {
