@@ -6,7 +6,7 @@
 
 	export let data: PageData;
 
-	const { type, redirect_to, filename } = data.response.response;
+	const { alias, type, redirect_to, filename } = data.response.response;
 
 	onMount(() => {
 		if (browser) {
@@ -19,12 +19,14 @@
 
 	const downloadFile = async () => {
 		try {
-			const urlToDownload = '';
-			const file = await fetch(urlToDownload);
+			const fetched = await fetch(`/api/file?alias=${alias}`, {
+				method: 'GET'
+			});
+
+			const blob = await fetched.blob();
 
 			const anchor = document.createElement('a');
 
-			const blob = await file.blob();
 			const url = URL.createObjectURL(blob);
 
 			anchor.href = url;
@@ -35,8 +37,8 @@
 			document.body.removeChild(anchor);
 
 			URL.revokeObjectURL(url);
-		} catch (error) {
-			toast.error('Cant download file');
+		} catch (err) {
+			toast.error(`Can't download file ${filename}`);
 		}
 	};
 </script>
