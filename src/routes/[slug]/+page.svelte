@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
+	import toast from 'svelte-french-toast';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
-	const { type, redirect_to } = data.response.response;
+	const { alias, type, redirect_to, filename } = data.response.response;
 
 	onMount(() => {
 		if (browser) {
@@ -15,6 +16,31 @@
 			}
 		}
 	});
+
+	const downloadFile = async () => {
+		try {
+			const fetched = await fetch(`/api/file?alias=${alias}`, {
+				method: 'GET'
+			});
+
+			const blob = await fetched.blob();
+
+			const anchor = document.createElement('a');
+
+			const url = URL.createObjectURL(blob);
+
+			anchor.href = url;
+			anchor.download = filename;
+
+			document.body.appendChild(anchor);
+			anchor.click();
+			document.body.removeChild(anchor);
+
+			URL.revokeObjectURL(url);
+		} catch (err) {
+			toast.error(`Can't download file ${filename}`);
+		}
+	};
 </script>
 
 {#if type === 'LINK'}
@@ -39,5 +65,24 @@
 		</div>
 
 		<h3 class="italic text-lg md:text-base">Redirecting to <span>{redirect_to}</span></h3>
+	</div>
+{:else if type === 'FILE'}
+	<div class="mt-[40vh] sm:mx-auto sm:w-full sm:max-w-xl">
+		<h1 class="text-2xl tracking-tight text-gray-900 md:text-4xl text-center">
+			<span class="block xl:inline">Your File</span>
+		</h1>
+
+		<h6 class="text-lg tracking-tight text-gray-900 md:text-xl mt-3 text-center">
+			<span class="block xl:inline">{filename}</span>
+		</h6>
+
+		<div class="mt-8 text-center">
+			<button
+				class="cursor-pointer text-white bg-gray-900 hover:bg-gray-600 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+				on:click={downloadFile}
+			>
+				Download File
+			</button>
+		</div>
 	</div>
 {/if}

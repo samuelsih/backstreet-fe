@@ -34,7 +34,6 @@ export const actions = {
 				return setError(form, null, message)
 			}
 			
-			console.log("ini error: ", error);
 			return setError(form, null, "Internal server error.")
 		}
 
