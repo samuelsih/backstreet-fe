@@ -15,13 +15,9 @@ export const load = (async (event) => {
 
 export const actions: Actions = {
 	default: async ({ request }) => {
-		console.log('start');
 		const formData = await request.formData();
-		console.log('scratch');
 		const form = await superValidate(formData, FileSchema);
-		console.log('end scratch');
 		if (!form.valid) {
-			console.log('form invalid');
 			return fail(400, { form });
 		}
 
@@ -30,7 +26,6 @@ export const actions: Actions = {
 		const hasFileValidationErr = validateFile(file);
 
 		if (hasFileValidationErr) {
-			console.log('has file err:', hasFileValidationErr);
 			return setError(form, 'file', hasFileValidationErr.message);
 		}
 
@@ -47,23 +42,18 @@ export const actions: Actions = {
 		formUpload.append('json_field', JSON.stringify(jsonField));
 		formUpload.append('file_field', file);
 
-		console.log('expected bere');
-
 		try {
 			await axios.post<IFileInsertResponse>(`${SECRET_API_INSERT_FILE}`, formUpload, {
 				headers: {
 					'Content-Type': 'multipart/form-data'
 				}
 			});
-			console.log('go here axios!!');
 		} catch (error: unknown) {
-			console.log('ini err:', error);
 			if (axios.isAxiosError(error)) {
 				const { message } = error.response?.data || "Can't process your request right now.";
 				return setError(form, null, message);
 			}
 
-			console.log('ini error: ', error);
 			return setError(form, null, 'Internal server error.');
 		}
 
